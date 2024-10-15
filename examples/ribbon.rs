@@ -1,6 +1,6 @@
 //! Draws a trail and connects the trails using a ribbon.
 
-use bevy::color::palettes::css::{BLACK, YELLOW};
+use bevy::color::palettes::css::YELLOW;
 use bevy::math::vec4;
 use bevy::prelude::*;
 use bevy::{
@@ -10,7 +10,6 @@ use bevy::{
 use bevy_hanabi::prelude::*;
 
 mod utils;
-use rand::{thread_rng, Rng};
 use utils::*;
 
 // These determine the shape of the Spirograph:
@@ -128,11 +127,10 @@ fn setup(mut commands: Commands, mut effects: ResMut<Assets<EffectAsset>>) {
 fn move_particle_effect(
     mut gizmos: Gizmos,
     mut query: Query<&mut Transform, With<ParticleEffect>>,
-    mut effect: Query<(&mut EffectProperties, &mut EffectSpawner)>,
+    mut effect: Query<&mut EffectProperties>,
     timer: Res<Time>,
 ) {
-    let theta = timer.elapsed_seconds() * 3.0;
-    let Ok((mut properties, mut spawner)) = effect.get_single_mut() else {
+    let Ok(mut properties) = effect.get_single_mut() else {
         return;
     };
     for mut transform in query.iter_mut() {
