@@ -1,4 +1,8 @@
-//! Draws a trail and connects the trails using a ribbon.
+//! Uses the [RibbonModifier] to draw a "tracer" or a "trail" following an Entity.
+//! The trail effect is achieved by using the [CloneModifier] on the "head" particle in combination
+//! with the [RibbonModifier].
+//! The movement of the head particle is achieved by linking the particle position to a CPU position using a [Property] in [move_head].
+//!
 
 use bevy::color::palettes::css::YELLOW;
 use bevy::math::vec4;
@@ -17,7 +21,7 @@ use utils::*;
 const K: f32 = 0.64;
 const L: f32 = 0.384;
 
-const TIME_SCALE: f32 = 10.0;
+const TIME_SCALE: f32 = 6.5;
 const SHAPE_SCALE: f32 = 25.0;
 const LIFETIME: f32 = 1.5;
 const TRAIL_SPAWN_RATE: f32 = 256.0;
@@ -25,7 +29,7 @@ const TRAIL_SPAWN_RATE: f32 = 256.0;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_exit = utils::make_test_app("ribbon")
         .add_systems(Startup, setup)
-        .add_systems(Update, move_particle_effect)
+        .add_systems(Update, move_head)
         .run();
     app_exit.into_result()
 }
@@ -124,7 +128,7 @@ fn setup(mut commands: Commands, mut effects: ResMut<Assets<EffectAsset>>) {
         .insert(Name::new("ribbon"));
 }
 
-fn move_particle_effect(
+fn move_head(
     mut gizmos: Gizmos,
     mut query: Query<&mut Transform, With<ParticleEffect>>,
     mut effect: Query<&mut EffectProperties>,
@@ -141,7 +145,6 @@ fn move_particle_effect(
             0.0,
         ) * SHAPE_SCALE;
 
-        //let pos = vec3(f32::cos(theta), f32::sin(theta), 0.0) * 5.0;
         properties.set("head_pos", (pos).into());
         gizmos.sphere(pos, Quat::IDENTITY, 1.0, YELLOW);
         transform.translation = pos;
